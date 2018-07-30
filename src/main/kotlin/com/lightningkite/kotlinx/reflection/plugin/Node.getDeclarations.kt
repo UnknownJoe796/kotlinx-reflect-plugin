@@ -34,7 +34,7 @@ fun Node.toKxClass(packageName: String): KxvClass {
             ?.get("classParameters")
             ?.children?.filter { it.type == "classParameter" }
             ?.mapNotNull { it.toKxConstructorVariable() } ?: listOf()
-    val normalVarList = this.get("classBody")?.children
+    val normalVarList = (this["classBody"] ?: this["enumClassBody"])?.children
             ?.filter { it.type == "classMemberDeclaration" }
             ?.mapNotNull { it["propertyDeclaration"] }
             ?.map { it.toKxVariable() } ?: listOf()
@@ -50,7 +50,11 @@ fun Node.toKxClass(packageName: String): KxvClass {
             functions = listOf(),
             constructors = listOfNotNull(this["primaryConstructor"]?.toKxConstructor(simpleName, typeParams)),
             annotations = get("modifierList")?.get("annotations")?.children?.map { it.toKxAnnotation() }
-                    ?: listOf()
+                    ?: listOf(),
+            isInterface = this.terminals.contains("interface"),
+            isAbstract = this["modifierList"]?.children?.any { it.content == "abstract" } ?: false,
+            isOpen = this["modifierList"]?.children?.any { it.content == "open" } ?: false,
+            enumValues = this["enumClassBody"]?.get("enumEntries")?.children?.mapNotNull { it["simpleIdentifier"]?.content }
     )
 }
 

@@ -4,8 +4,18 @@ import java.io.File
 
 
 fun main(vararg args: String) {
-    val lookForSources = listOf(File("C:\\Users\\josep\\Projects\\reflect\\reflect-plugin\\testData"))
-    val output = File("C:\\Users\\josep\\Projects\\reflect\\reflect-plugin\\build\\testOutput")
+    val basePath = "/Users/josephivie/StudioProjects/kotlinx-reflect-plugin"
+    val lookForSources = listOf(File("$basePath/testData"))
+    val output = File("$basePath/build/testOutput")
     val qualifiedSetupFunctionName = "com.lightningkite.kotlinx.reflection.setupGenerated"
+
+    lookForSources.forEach {
+        it.walkTopDown().forEach {
+            if(it.extension == "kt"){
+                it.kotlinNode().print(System.out)
+            }
+        }
+    }
+
     reflectTask(lookForSources, output, qualifiedSetupFunctionName)
 }

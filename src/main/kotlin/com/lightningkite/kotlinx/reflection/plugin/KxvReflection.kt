@@ -29,7 +29,11 @@ data class KxvClass(
         val variables: Map<String, KxvVariable> = mapOf(),
         val functions: List<KxvFunction> = listOf(),
         val constructors: List<KxvFunction> = listOf(),
-        val annotations: List<KxvAnnotation> = listOf()
+        val annotations: List<KxvAnnotation> = listOf(),
+        val isInterface: Boolean = false,
+        val isOpen: Boolean = false,
+        val isAbstract: Boolean = false,
+        val enumValues: List<String>? = null
 ) {
     val selfType = KxvType(simpleName, false, (0 until typeParameters.size).map { KxvTypeProjection.STAR })
     val selfTypeAny = KxvType(simpleName, false, (0 until typeParameters.size).map { KxvTypeProjection(KxvType("Any", true)) })
@@ -76,6 +80,7 @@ data class KxvClass(
         val annotationList: String = annotations.joinToString(", ", "listOf(", ")") {
             it.write()
         }
+        val enumValuesText = enumValues?.joinToString(",", "listOf(", ")"){ "$simpleName.$it" }
         return """
             object ${simpleName}Reflection: KxClass<${selfType.writeActual()}>{
 
@@ -90,6 +95,11 @@ data class KxvClass(
                 override val functions: List<KxFunction<*>> = $functionList
                 override val constructors: List<KxFunction<${selfType.writeActual()}>> = $constructorList
                 override val annotations: List<KxAnnotation> = $annotationList
+
+                override val isInterface: Boolean get() = $isInterface
+                override val isOpen: Boolean get() = $isOpen
+                override val isAbstract: Boolean get() = $isAbstract
+                override val enumValues: List<Owner>? = $enumValuesText
             }
         """.trimIndent()
     }

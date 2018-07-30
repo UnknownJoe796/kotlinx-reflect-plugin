@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="reflect-plugin" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="com.lightningkite.kotlinx" external.system.module.version="1.0.0" type="JAVA_MODULE" version="4">
+<module external.linked.project.id="kotlinx-reflect-plugin" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="com.lightningkite.kotlinx" external.system.module.version="1.0.0" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="android-gradle" name="Android-Gradle">
       <configuration>
@@ -19,7 +19,7 @@
           <option name="destination" value="$MODULE_DIR$/../../build/classes/kotlin/main" />
           <option name="noStdlib" value="true" />
           <option name="noReflect" value="true" />
-          <option name="moduleName" value="reflect-plugin" />
+          <option name="moduleName" value="kotlinx-reflect-plugin" />
           <option name="addCompilerBuiltIns" value="true" />
           <option name="loadBuiltInsFromDependencies" value="true" />
           <option name="languageVersion" value="1.2" />
@@ -34,16 +34,16 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_9">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/../../build/classes/java/main" />
     <output-test url="file://$MODULE_DIR$/../../build/classes/java/test" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../..">
-      <sourceFolder url="file://$MODULE_DIR$/../../src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../src/main/kotlin" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../src/main/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/../../src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../src/test/kotlin" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../build" />
@@ -139,6 +139,6 @@
     <orderEntry type="library" exported="" scope="TEST" name="gradle-api-4.4" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="groovy-all-2.4.12" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="gradle-installation-beacon-4.4" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="C__Users_josep_Projects_reflect_plugin_build_pluginUnderTestMetadata" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="_Users_josephivie_StudioProjects_kotlinx_reflect_plugin_build_pluginUnderTestMetadata" level="project" />
   </component>
 </module>

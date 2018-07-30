@@ -27,6 +27,22 @@ class TestClass<T>(
     }
 }
 
+@ExternalReflection
 interface TestInterface {
     fun test()
+}
+
+@ExternalReflection
+abstract class TestAbstractClass {
+
+}
+
+@ExternalReflection
+open class TestOpenClass {
+
+}
+
+@ExternalReflection
+enum class CardinalDirection {
+    NORTH, EAST, SOUTH, WEST
 }
