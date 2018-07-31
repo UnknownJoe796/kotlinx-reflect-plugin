@@ -50,11 +50,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.lightningkite.kotlinx:jvm:0.5.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.2.50" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.lightningkite.kotlinx:kotlinx-jvm:0.5.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.2.51" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.2.51" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.antlr:antlr4-runtime:4.5" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.lightningkite.kotlinx:common:0.5.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.lightningkite.kotlinx:kotlinx-common:0.5.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.2.51" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: com.squareup.okhttp3:okhttp:3.10.0" level="project" />
@@ -63,11 +63,11 @@
     <orderEntry type="library" scope="PROVIDED" name="Gradle: gradle-api-4.4" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: groovy-all-2.4.12" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: gradle-installation-beacon-4.4" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.lightningkite.kotlinx:jvm:0.5.0" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.2.50" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.lightningkite.kotlinx:kotlinx-jvm:0.5.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.2.51" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.2.51" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.antlr:antlr4-runtime:4.5" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.lightningkite.kotlinx:common:0.5.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.lightningkite.kotlinx:kotlinx-common:0.5.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.2.51" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.squareup.okhttp3:okhttp:3.10.0" level="project" />
@@ -76,11 +76,11 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: gradle-api-4.4" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: groovy-all-2.4.12" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: gradle-installation-beacon-4.4" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.lightningkite.kotlinx:jvm:0.5.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.2.50" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.lightningkite.kotlinx:kotlinx-jvm:0.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.2.51" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.2.51" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.antlr:antlr4-runtime:4.5" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.lightningkite.kotlinx:common:0.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.lightningkite.kotlinx:kotlinx-common:0.5.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.2.51" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.okhttp3:okhttp:3.10.0" level="project" />
@@ -99,11 +99,11 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" exported="" scope="PROVIDED" name="jvm-0.5.0" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-reflect-1.2.50" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlinx-jvm-0.5.0" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-reflect-1.2.51" level="project" />
     <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-stdlib-1.2.51" level="project" />
     <orderEntry type="library" exported="" scope="PROVIDED" name="antlr4-runtime-4.5" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="common-0.5.0" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlinx-common-0.5.0" level="project" />
     <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-stdlib-common-1.2.51" level="project" />
     <orderEntry type="library" exported="" scope="PROVIDED" name="annotations-13.0" level="project" />
     <orderEntry type="library" exported="" scope="PROVIDED" name="okhttp-3.10.0" level="project" />
@@ -112,11 +112,11 @@
     <orderEntry type="library" exported="" scope="PROVIDED" name="gradle-api-4.4" level="project" />
     <orderEntry type="library" exported="" scope="PROVIDED" name="groovy-all-2.4.12" level="project" />
     <orderEntry type="library" exported="" scope="PROVIDED" name="gradle-installation-beacon-4.4" level="project" />
-    <orderEntry type="library" exported="" scope="RUNTIME" name="jvm-0.5.0" level="project" />
-    <orderEntry type="library" exported="" scope="RUNTIME" name="kotlin-reflect-1.2.50" level="project" />
+    <orderEntry type="library" exported="" scope="RUNTIME" name="kotlinx-jvm-0.5.0" level="project" />
+    <orderEntry type="library" exported="" scope="RUNTIME" name="kotlin-reflect-1.2.51" level="project" />
     <orderEntry type="library" exported="" scope="RUNTIME" name="kotlin-stdlib-1.2.51" level="project" />
     <orderEntry type="library" exported="" scope="RUNTIME" name="antlr4-runtime-4.5" level="project" />
-    <orderEntry type="library" exported="" scope="RUNTIME" name="common-0.5.0" level="project" />
+    <orderEntry type="library" exported="" scope="RUNTIME" name="kotlinx-common-0.5.0" level="project" />
     <orderEntry type="library" exported="" scope="RUNTIME" name="kotlin-stdlib-common-1.2.51" level="project" />
     <orderEntry type="library" exported="" scope="RUNTIME" name="annotations-13.0" level="project" />
     <orderEntry type="library" exported="" scope="RUNTIME" name="okhttp-3.10.0" level="project" />
@@ -125,11 +125,11 @@
     <orderEntry type="library" exported="" scope="RUNTIME" name="gradle-api-4.4" level="project" />
     <orderEntry type="library" exported="" scope="RUNTIME" name="groovy-all-2.4.12" level="project" />
     <orderEntry type="library" exported="" scope="RUNTIME" name="gradle-installation-beacon-4.4" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="jvm-0.5.0" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="kotlin-reflect-1.2.50" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="kotlinx-jvm-0.5.0" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="kotlin-reflect-1.2.51" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="kotlin-stdlib-1.2.51" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="antlr4-runtime-4.5" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="common-0.5.0" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="kotlinx-common-0.5.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="kotlin-stdlib-common-1.2.51" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="annotations-13.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="okhttp-3.10.0" level="project" />
@@ -140,5 +140,13 @@
     <orderEntry type="library" exported="" scope="TEST" name="groovy-all-2.4.12" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="gradle-installation-beacon-4.4" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="_Users_josephivie_StudioProjects_kotlinx_reflect_plugin_build_pluginUnderTestMetadata" level="project" />
+    <orderEntry type="library" exported="" name="kotlinx-reflect-plugin.kotlinx-reflect-plugin-1.0.0" level="project" />
+    <orderEntry type="library" exported="" name="kotlinx-reflect-plugin.kotlinx-reflect-plugin-1.0.0" level="project" />
+    <orderEntry type="library" exported="" name="kotlinx-reflect-plugin.kotlinx-reflect-plugin-1.0.0" level="project" />
+    <orderEntry type="library" exported="" name="kotlinx-reflect-plugin.kotlinx-reflect-plugin-1.0.0" level="project" />
+    <orderEntry type="library" exported="" name="kotlinx-reflect-plugin.kotlinx-reflect-plugin-1.0.0" level="project" />
+    <orderEntry type="library" exported="" name="kotlinx-reflect-plugin.kotlinx-reflect-plugin-1.0.0" level="project" />
+    <orderEntry type="library" exported="" name="kotlinx-reflect-plugin.kotlinx-reflect-plugin-1.0.0" level="project" />
+    <orderEntry type="library" exported="" name="kotlinx-reflect-plugin.kotlinx-reflect-plugin-1.0.0" level="project" />
   </component>
 </module>

@@ -60,21 +60,21 @@ data class KxvClass(
         val valDeclarations: String = variables.entries.filter { !it.value.mutable }.joinToString("\n") {
             """val ${it.key} = ${it.value.write(this)}"""
         }.preventTypeParams()
-        val valMap: String = variables.entries.filter { !it.value.mutable }.joinToString(", ", "mapOf(", ")") {
+        val valMap: String = variables.entries.filter { !it.value.mutable }.joinToString(", ", "mapOf<String, KxValue<${selfType.writeActual()}, *>>(", ")") {
             """"${it.key}" to ${it.key}"""
         }.preventTypeParams()
 
         val varDeclarations: String = variables.entries.filter { it.value.mutable }.joinToString("\n") {
             """val ${it.key} = ${it.value.write(this)}"""
         }.preventTypeParams()
-        val varMap: String = variables.entries.filter { it.value.mutable }.joinToString(", ", "mapOf(", ")") {
+        val varMap: String = variables.entries.filter { it.value.mutable }.joinToString(", ", "mapOf<String, KxVariable<${selfType.writeActual()}, *>>(", ")") {
             """"${it.key}" to ${it.key}"""
         }.preventTypeParams()
 
-        val functionList: String = functions.joinToString(", ", "listOf(", ")") {
+        val functionList: String = functions.joinToString(", ", "listOf<KxFunction<*>>(", ")") {
             it.write()
         }.preventTypeParams()
-        val constructorList: String = constructors.joinToString(", ", "listOf(", ")") {
+        val constructorList: String = constructors.joinToString(", ", "listOf<KxFunction<${selfType.writeActual()}>>(", ")") {
             it.write()
         }.preventTypeParams()
         val annotationList: String = annotations.joinToString(", ", "listOf(", ")") {
@@ -92,10 +92,10 @@ data class KxvClass(
 
                 override val simpleName: String = "$simpleName"
                 override val qualifiedName: String = "$qualifiedName"
-                override val values: Map<String, KxValue<${selfType.writeActual()}, *>> = $valMap
-                override val variables: Map<String, KxVariable<${selfType.writeActual()}, *>> = $varMap
-                override val functions: List<KxFunction<*>> = $functionList
-                override val constructors: List<KxFunction<${selfType.writeActual()}>> = $constructorList
+                override val values: Map<String, KxValue<${selfType.writeActual()}, *>> by lazy { $valMap }
+                override val variables: Map<String, KxVariable<${selfType.writeActual()}, *>> by lazy { $varMap }
+                override val functions: List<KxFunction<*>> by lazy { $functionList }
+                override val constructors: List<KxFunction<${selfType.writeActual()}>> by lazy { $constructorList }
                 override val annotations: List<KxAnnotation> = $annotationList
 
                 override val isInterface: Boolean get() = $isInterface
