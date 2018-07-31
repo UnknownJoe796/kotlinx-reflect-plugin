@@ -80,13 +80,15 @@ data class KxvClass(
         val annotationList: String = annotations.joinToString(", ", "listOf(", ")") {
             it.write()
         }
-        val enumValuesText = enumValues?.joinToString(",", "listOf(", ")"){ "$simpleName.$it" }
+        val enumValuesText = enumValues?.joinToString(",", "listOf(", ")") { "$simpleName.$it" }
         return """
             object ${simpleName}Reflection: KxClass<${selfType.writeActual()}>{
 
                 $valDeclarations
 
                 $varDeclarations
+
+                override val kclass get() = $simpleName::class
 
                 override val simpleName: String = "$simpleName"
                 override val qualifiedName: String = "$qualifiedName"
@@ -99,7 +101,7 @@ data class KxvClass(
                 override val isInterface: Boolean get() = $isInterface
                 override val isOpen: Boolean get() = $isOpen
                 override val isAbstract: Boolean get() = $isAbstract
-                override val enumValues: List<Owner>? = $enumValuesText
+                override val enumValues: List<$simpleName>? = $enumValuesText
             }
         """.trimIndent()
     }
@@ -216,16 +218,24 @@ data class KxvVariable(
 data class KxvArgument(
         val name: String,
         val type: KxvType,
-        val annotations: List<KxvAnnotation>
-        //Default?
+        val annotations: List<KxvAnnotation>,
+        val default: String?
 ) {
-    fun write(): String {
+    fun write(arguments: List<KxvArgument>): String {
+        val defaultText = default?.let {
+            var current = it
+            arguments.forEachIndexed { index, argument ->
+                current = current.replace(Regex("\\b" + argument.name + "\\b"), "(previousArguments[$index] as ${argument.type.writeActual()})")
+            }
+            "{ previousArguments -> $current }"
+        } ?: "null"
         val annotationText = annotations.joinToString(", ", "listOf(", ")") { it.write() }
         return """
             KxArgument(
                 name = "$name",
                 type = ${type.write()},
-                annotations = $annotationText
+                annotations = $annotationText,
+                default = $defaultText
             )
         """.trimIndent()
     }
@@ -239,7 +249,7 @@ data class KxvFunction(
         val callCode: String
 ) {
     fun write(): String {
-        val argumentsText = arguments.joinToString(", ", "listOf(", ")") { it.write() }
+        val argumentsText = arguments.joinToString(", ", "listOf(", ")") { it.write(arguments) }
         val annotationText = annotations.joinToString(", ", "listOf(", ")") { it.write() }
         return """
             KxFunction<${type.writeActual()}>(

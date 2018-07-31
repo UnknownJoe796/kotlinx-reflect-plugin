@@ -115,7 +115,8 @@ fun Node.toKxConstructor(forName: String, typeParams: List<String>): KxvFunction
 fun Node.toKxConstructorParam(): KxvArgument = KxvArgument(
         name = this["simpleIdentifier"]!!.content!!,
         type = this["type"]!!.toKxType(),
-        annotations = listOf()
+        annotations = listOf(),
+        default = this["expression"]?.content
 )
 
 fun Node.toKxConstructorVariable(): KxvVariable? {

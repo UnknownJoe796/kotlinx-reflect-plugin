@@ -44,5 +44,8 @@ open class TestOpenClass {
 
 @ExternalReflection
 enum class CardinalDirection {
-    NORTH, EAST, SOUTH, WEST
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST
 }
