@@ -25,6 +25,7 @@ data class KxvFile(
 data class KxvClass(
         val simpleName: String,
         val qualifiedName: String,
+        val implements: List<KxvType>,
         val typeParameters: List<String>,
         val variables: Map<String, KxvVariable> = mapOf(),
         val functions: List<KxvFunction> = listOf(),
@@ -57,15 +58,17 @@ data class KxvClass(
     }
 
     fun write(): String {
+        val implementsDeclarations: String = implements.joinToString(",", "listOf<KxType>(", ")") { it.write() }
+
         val valDeclarations: String = variables.entries.filter { !it.value.mutable }.joinToString("\n") {
-            """val ${it.key} = ${it.value.write(this)}"""
+            """val ${it.key} by lazy { ${it.value.write(this)} }"""
         }.preventTypeParams()
         val valMap: String = variables.entries.filter { !it.value.mutable }.joinToString(", ", "mapOf<String, KxValue<${selfType.writeActual()}, *>>(", ")") {
             """"${it.key}" to ${it.key}"""
         }.preventTypeParams()
 
         val varDeclarations: String = variables.entries.filter { it.value.mutable }.joinToString("\n") {
-            """val ${it.key} = ${it.value.write(this)}"""
+            """val ${it.key} by lazy { ${it.value.write(this)} }"""
         }.preventTypeParams()
         val varMap: String = variables.entries.filter { it.value.mutable }.joinToString(", ", "mapOf<String, KxVariable<${selfType.writeActual()}, *>>(", ")") {
             """"${it.key}" to ${it.key}"""
@@ -89,6 +92,8 @@ data class KxvClass(
                 $varDeclarations
 
                 override val kclass get() = $simpleName::class
+
+                override val implements: List<KxType> by lazy{ $implementsDeclarations }
 
                 override val simpleName: String = "$simpleName"
                 override val qualifiedName: String = "$qualifiedName"

@@ -42,9 +42,13 @@ fun Node.toKxClass(packageName: String): KxvClass {
             ?.filter { it.type == "typeParameter" }
             ?.mapNotNull { it["simpleIdentifier"]?.content }
             ?: listOf()
+    val implementsList = get("delegationSpecifiers")?.children?.mapNotNull {
+        it.children.firstOrNull()?.toKxType()
+    } ?: listOf()
     return KxvClass(
             simpleName = simpleName,
             qualifiedName = "$packageName.$simpleName",
+            implements = implementsList,
             typeParameters = typeParams,
             variables = (constructorVarList + normalVarList).associate { it.name to it },
             functions = listOf(),
@@ -72,8 +76,21 @@ fun Node.toKxType(annotations: List<KxvAnnotation> = listOf()): KxvType {
     return when (type) {
         "nullableType" -> this.children.firstOrNull()?.toKxType()?.copy(nullable = true)
                 ?: anyNullableType
-        "type", "typeProjection", "userType", "typeReference" -> this.children.firstOrNull()?.toKxType()
+        "type", "typeProjection", "typeReference" -> this.children.firstOrNull()?.toKxType()
                 ?: anyNullableType
+        "userType" -> {
+            KxvType(
+                    base = children.joinToString(".") {
+                        it["simpleIdentifier"]?.content ?: ""
+                    },
+                    typeParameters = children.lastOrNull()
+                            ?.get("typeArguments")
+                            ?.children
+                            ?.map { it.toKxTypeProjection() }
+                            ?: listOf(),
+                    nullable = false
+            )
+        }
         "simpleUserType" -> KxvType(
                 base = this["simpleIdentifier"]!!.content!!,
                 nullable = false,

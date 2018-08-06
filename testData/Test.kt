@@ -9,7 +9,7 @@ class TestClass<T>(
         var description: String = "",
         var nestMaybe: TestClass<*>? = null,
         normalParam: Int = 2
-) {
+): java.io.Closeable, SomeType<T> {
 
     var anotherVar: T? = null
 
@@ -25,6 +25,8 @@ class TestClass<T>(
         TestClassReflection.name.set(this, "mah new name")
         return param
     }
+
+    override fun close(){}
 }
 
 @ExternalReflection
