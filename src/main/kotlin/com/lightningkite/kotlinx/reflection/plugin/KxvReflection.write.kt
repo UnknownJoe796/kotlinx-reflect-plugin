@@ -3,6 +3,25 @@ package com.lightningkite.kotlinx.reflection.plugin
 import org.gradle.internal.impldep.org.eclipse.jgit.lib.ObjectChecker.type
 
 
+fun TabWriter.write(item: KxvDirectory) = with(item) {
+
+    writeln("package ${qualifiedValName.substringBeforeLast('.')}")
+    writeln()
+    writeln("import com.lightningkite.kotlinx.reflection.kxReflect")
+    writeln()
+    for(it in classes){
+        writeln("import ${it.packageName}.${it.reflectiveObjectName}")
+    }
+    writeln()
+    writelnList(
+            list = classes,
+            prepend = "val ${qualifiedValName.substringAfterLast('.')} = listOf(",
+            suffix = ")",
+            howToWrite = { writeln(it.reflectiveObjectName) }
+    )
+    writeln()
+}
+
 fun TabWriter.write(item: KxvFile) = with(item) {
     writeln("package $packageName")
     writeln()
@@ -22,12 +41,15 @@ fun TabWriter.write(item: KxvFile) = with(item) {
 }
 
 fun TabWriter.write(item: KxvClass) = with(item) {
+    anyfy()
     val selfType = KxvType(simpleName, false, (0 until typeParameters.size).map { KxvTypeProjection.STAR })
     val selfTypeAny = KxvType(simpleName, false, (0 until typeParameters.size).map { KxvTypeProjection(KxvType("Any", true)) })
 
-    writeln("object ${simpleName.filter { it.isJavaIdentifierPart() }}Reflection: KxClass<${selfType.emitStringActual()}> {")
+    writeln("object $reflectiveObjectName: KxClass<${selfType.emitStringActual()}> {")
     tabs++
 
+    writeln("object Fields {")
+    tabs++
     for (decl in variables.values) {
         writeln("val ${decl.name} by lazy { ")
         tabs++
@@ -35,6 +57,8 @@ fun TabWriter.write(item: KxvClass) = with(item) {
         tabs--
         writeln("}")
     }
+    tabs--
+    writeln("}")
 
     writeln("override val kclass get() = $simpleName::class")
 
@@ -42,7 +66,7 @@ fun TabWriter.write(item: KxvClass) = with(item) {
     tabs++
     writelnList(
             list = implements,
-            prepend = "listOf(",
+            prepend = "listOf<KxType>(",
             suffix = ")",
             howToWrite = {write(it)}
     )
@@ -50,17 +74,17 @@ fun TabWriter.write(item: KxvClass) = with(item) {
     writeln("}")
 
     writeln("override val simpleName: String = \"$simpleName\"")
-    writeln("override val qualifiedName: String = \"$qualifiedName\"")
+    writeln("override val qualifiedName: String = \"$packageName.$simpleName\"")
 
     writeln("override val values: Map<String, KxValue<${selfType.emitStringActual()}, *>> by lazy {")
     tabs++
-    writeln(variables.values.filter { !it.mutable }.joinToString(", ", "mapOf(", ")"){ """"${it.name}" to ${it.name}""" })
+    writeln(variables.values.filter { !it.mutable }.joinToString(", ", "mapOf<String, KxValue<${selfType.emitStringActual()}, *>>(", ")"){ """"${it.name}" to Fields.${it.name}""" })
     tabs--
     writeln("}")
 
     writeln("override val variables: Map<String, KxVariable<${selfType.emitStringActual()}, *>> by lazy {")
     tabs++
-    writeln(variables.values.filter { it.mutable }.joinToString(", ", "mapOf(", ")"){ """"${it.name}" to ${it.name}""" })
+    writeln(variables.values.filter { it.mutable }.joinToString(", ", "mapOf<String, KxVariable<${selfType.emitStringActual()}, *>>(", ")"){ """"${it.name}" to Fields.${it.name}""" })
     tabs--
     writeln("}")
 
@@ -68,7 +92,7 @@ fun TabWriter.write(item: KxvClass) = with(item) {
     tabs++
     writelnList(
             list = functions,
-            prepend = "listOf(",
+            prepend = "listOf<KxFunction<*>>(",
             suffix = ")",
             howToWrite = {write(it)}
     )
@@ -79,7 +103,7 @@ fun TabWriter.write(item: KxvClass) = with(item) {
     tabs++
     writelnList(
             list = constructors,
-            prepend = "listOf(",
+            prepend = "listOf<KxFunction<${selfType.emitStringActual()}>>(",
             suffix = ")",
             howToWrite = {write(it)}
     )
@@ -88,19 +112,19 @@ fun TabWriter.write(item: KxvClass) = with(item) {
 
     writelnList(
             list = implements,
-            prepend = "override val annotations: List<KxAnnotation> = listOf(",
+            prepend = "override val annotations: List<KxAnnotation> = listOf<KxAnnotation>(",
             suffix = ")",
             howToWrite = {write(it)}
     )
 
-    writeln("override val modifiers: List<KxClassModifier> = listOf(${modifiers.joinToString { "KxClassModifier." + it.name }})")
+    writeln("override val modifiers: List<KxClassModifier> = listOf<KxClassModifier>(${modifiers.joinToString { "KxClassModifier." + it.name }})")
 
     if (enumValues == null) {
         writeln("override val enumValues: List<${selfType.emitStringActual()}>? = null")
     } else {
         writelnList(
-                list = enumValues,
-                prepend = "override val enumValues: List<${selfType.emitStringActual()}>? = listOf(",
+                list = enumValues!!,
+                prepend = "override val enumValues: List<${selfType.emitStringActual()}>? = listOf<${selfType.emitStringActual()}>(",
                 suffix = ")",
                 howToWrite = {writeln("$simpleName.$it")}
         )
@@ -161,7 +185,7 @@ fun TabWriter.write(owner: KxvClass, item: KxvVariable) = with(item) {
     }
     tabs++
 
-    writeln("owner = this,")
+    writeln("owner = ${owner.reflectiveObjectName},")
     writeln("""name = "$name",""")
 
     writeln("type = ")
@@ -245,12 +269,12 @@ fun TabWriter.write(item: KxvFunction) = with(item) {
             howToWrite = {write(arguments, it)}
     )
 
-    writeln("callCode = $callCode,")
+    writeln("call = $callCode,")
 
     writelnList(
             list = annotations,
             prepend = "annotations = listOf(",
-            suffix = "),",
+            suffix = ")",
             howToWrite = {write(it)}
     )
 

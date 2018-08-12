@@ -1,72 +1,121 @@
 package com.lightningkite.kotlinx.reflection.plugin
 
+interface KxvNavigable{
+    fun subs():Sequence<KxvNavigable>
+}
+
+fun KxvNavigable.recursiveSubs() = subs().recursiveFlatMap { it.subs() }
+
+class KxvDirectory(val qualifiedValName: String, val classes: List<KxvClass>)
+
 data class KxvFile(
-        val fileName: String,
-        val packageName: String,
-        val generalImports: List<String>,
-        val specificImports: List<String>,
-        val classes: List<KxvClass>
-)
+        var fileName: String,
+        var packageName: String,
+        var generalImports: List<String>,
+        var specificImports: List<String>,
+        var classes: List<KxvClass>
+): KxvNavigable{
+    override fun subs(): Sequence<KxvNavigable>
+        = classes.asSequence()
+}
 
 data class KxvClass(
-        val simpleName: String,
-        val qualifiedName: String,
-        val implements: List<KxvType>,
-        val typeParameters: List<String>,
-        val variables: Map<String, KxvVariable> = mapOf(),
-        val functions: List<KxvFunction> = listOf(),
-        val constructors: List<KxvFunction> = listOf(),
-        val annotations: List<KxvAnnotation> = listOf(),
-        val modifiers: List<KxClassModifier> = listOf(),
-        val enumValues: List<String>? = null
-){
-    val selfType = KxvType(simpleName, false, (0 until typeParameters.size).map { KxvTypeProjection.STAR })
-    val selfTypeAny = KxvType(simpleName, false, (0 until typeParameters.size).map { KxvTypeProjection(KxvType("Any", true)) })
+        var simpleName: String,
+        var packageName: String,
+        var implements: List<KxvType>,
+        var typeParameters: List<KxvTypeParameter>,
+        var variables: Map<String, KxvVariable> = mapOf(),
+        var functions: List<KxvFunction> = listOf(),
+        var constructors: List<KxvFunction> = listOf(),
+        var annotations: List<KxvAnnotation> = listOf(),
+        var modifiers: List<KxClassModifier> = listOf(),
+        var enumValues: List<String>? = null
+): KxvNavigable{
+    val qualifiedName get() = "$packageName.$simpleName"
+    val reflectiveObjectName get() = simpleName.filter { it.isJavaIdentifierPart() } + "Reflection"
+    var selfType = KxvType(simpleName, false, (0 until typeParameters.size).map { KxvTypeProjection.STAR })
+    var selfTypeAny = KxvType(simpleName, false, typeParameters.map { KxvTypeProjection(it.minimum) })
+    override fun subs(): Sequence<KxvNavigable>
+            = implements.asSequence() +
+            variables.values.asSequence() +
+//            typeParameters.asSequence() +
+            functions.asSequence() +
+            constructors.asSequence() +
+            annotations.asSequence()
+}
+
+data class KxvTypeParameter(
+        var name: String,
+        var minimum: KxvType = KxvType("Any", true),
+        var variance: KxVariance = KxVariance.INVARIANT
+): KxvNavigable {
+    override fun subs(): Sequence<KxvNavigable>
+            = sequenceOf(minimum)
 }
 
 data class KxvTypeProjection(
-        val type: KxvType,
-        val variance: KxVariance = KxVariance.INVARIANT,
-        val isStar: Boolean = false
-) {
+        var type: KxvType,
+        var variance: KxVariance = KxVariance.INVARIANT,
+        var isStar: Boolean = false
+): KxvNavigable {
     companion object {
-        val STAR = KxvTypeProjection(KxvType("Any", true), isStar = true)
+        var STAR = KxvTypeProjection(KxvType("Any", true), isStar = true)
     }
+
+    fun deepCopy(): KxvTypeProjection = copy(type = type.deepCopy())
+
+    override fun subs(): Sequence<KxvNavigable>
+            = sequenceOf(type)
 }
 
 
 data class KxvType(
-        val base: String,
-        val nullable: Boolean,
-        val typeParameters: List<KxvTypeProjection> = listOf(),
-        val annotations: List<KxvAnnotation> = listOf()
-)
+        var base: String,
+        var nullable: Boolean = false,
+        var typeParameters: List<KxvTypeProjection> = listOf(),
+        var annotations: List<KxvAnnotation> = listOf()
+): KxvNavigable {
+    override fun subs(): Sequence<KxvNavigable>
+            = typeParameters.asSequence() + annotations.asSequence()
+    fun deepCopy() = copy(typeParameters = typeParameters.map { it.deepCopy() })
+}
 
 data class KxvVariable(
-        val name: String,
-        val type: KxvType,
-        val mutable: Boolean,
-        val artificial: Boolean,
-        val annotations: List<KxvAnnotation>
-)
+        var name: String,
+        var type: KxvType,
+        var mutable: Boolean,
+        var artificial: Boolean,
+        var annotations: List<KxvAnnotation>
+): KxvNavigable {
+    override fun subs(): Sequence<KxvNavigable>
+            = annotations.asSequence() + sequenceOf(type)
+}
 
 data class KxvArgument(
-        val name: String,
-        val type: KxvType,
-        val annotations: List<KxvAnnotation>,
-        val default: String?
-)
+        var name: String,
+        var type: KxvType,
+        var annotations: List<KxvAnnotation>,
+        var default: String?
+): KxvNavigable {
+    override fun subs(): Sequence<KxvNavigable>
+            = sequenceOf(type) + annotations.asSequence()
+}
 
 data class KxvFunction(
-        val name: String,
-        val type: KxvType,
-        val arguments: List<KxvArgument>,
-        val annotations: List<KxvAnnotation>,
-        val callCode: String
-)
+        var name: String,
+        var type: KxvType,
+        var typeParameters: List<KxvTypeParameter>,
+        var arguments: List<KxvArgument>,
+        var annotations: List<KxvAnnotation>
+): KxvNavigable{
+    override fun subs(): Sequence<KxvNavigable>
+            = sequenceOf(type) + annotations.asSequence() + arguments.asSequence()
+}
 
 data class KxvAnnotation(
-        val name: String,
-        val arguments: List<String>,
-        val useSiteTarget: String? = null
-)
+        var name: String,
+        var arguments: List<String>,
+        var useSiteTarget: String? = null
+): KxvNavigable{
+    override fun subs(): Sequence<KxvNavigable> = sequenceOf()
+}

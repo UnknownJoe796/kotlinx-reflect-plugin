@@ -43,7 +43,12 @@ fun Node.toKxClasses(packageName: String, owner: KxvClass? = null): List<KxvClas
             ?.map { it.toKxVariable() } ?: listOf()
     val typeParams = get("typeParameters")?.children
             ?.filter { it.type == "typeParameter" }
-            ?.mapNotNull { it["simpleIdentifier"]?.content }
+            ?.map {
+                KxvTypeParameter(
+                        name = it["simpleIdentifier"]!!.content!!,
+                        minimum = it["type"]?.toKxType() ?: KxvType("Any", true)
+                )
+            }
             ?: listOf()
     val implementsList = get("delegationSpecifiers")?.children?.mapNotNull {
         it.get("delegationSpecifier")?.let{
@@ -53,7 +58,7 @@ fun Node.toKxClasses(packageName: String, owner: KxvClass? = null): List<KxvClas
     } ?: listOf()
     val currentClass = KxvClass(
             simpleName = simpleName,
-            qualifiedName = "$packageName.$simpleName",
+            packageName = packageName,
             implements = implementsList,
             typeParameters = typeParams,
             variables = (constructorVarList + normalVarList).associate { it.name to it },
@@ -133,20 +138,14 @@ fun Node.toKxTypeProjection(annotations: List<KxvAnnotation> = listOf()): KxvTyp
     )
 }
 
-fun Node.toKxConstructor(forName: String, typeParams: List<String>): KxvFunction {
+fun Node.toKxConstructor(forName: String, typeParams: List<KxvTypeParameter>): KxvFunction {
     val args = this["classParameters"]!!.children.map { it.toKxConstructorParam() }
-    val argString = args.indices.joinToString { "it[$it] as ${args[it].type.emitStringActual()}" }
-    val callCode = if (typeParams.isEmpty()) {
-        "{ $forName($argString) }"
-    } else {
-        "{ $forName<${typeParams.indices.joinToString { "Any?" }}>($argString) }"
-    }
     return KxvFunction(
-            name = "",
-            type = KxvType(forName, false, typeParams.indices.map { KxvTypeProjection.STAR }, listOf()),
+            name = forName,
+            type = KxvType(forName, false, typeParams.map { KxvTypeProjection.STAR }, listOf()),
+            typeParameters = typeParams.map { it.copy() },
             arguments = args,
-            annotations = listOf(),
-            callCode = callCode
+            annotations = listOf()
     )
 }
 
@@ -158,7 +157,7 @@ fun Node.toKxConstructorParam(): KxvArgument = KxvArgument(
 )
 
 fun Node.toKxConstructorVariable(): KxvVariable? {
-    if (!terminals.contains("var") || terminals.contains("val")) return null
+    if (!terminals.contains("var") && !terminals.contains("val")) return null
     return KxvVariable(
             name = this["simpleIdentifier"]!!.content!!,
             type = this["type"]!!.toKxType(),

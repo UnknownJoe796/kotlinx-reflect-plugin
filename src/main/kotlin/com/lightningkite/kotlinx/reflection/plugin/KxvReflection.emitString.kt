@@ -1,6 +1,20 @@
 package com.lightningkite.kotlinx.reflection.plugin
 
 
+fun KxvDirectory.emitString(): String {
+    val fileImportsB = classes.joinToString("\n") { "import ${it.packageName}.${it.reflectiveObjectName}" }
+    return """
+            package ${qualifiedValName.substringBeforeLast('.')}
+
+            import com.lightningkite.kotlinx.reflection.kxReflect
+
+            $fileImportsB
+
+            val ${qualifiedValName.substringAfterLast('.')} = listOf(${classes.joinToString(",\n") { it.reflectiveObjectName }}
+            )
+        """.trimIndent()
+}
+
 fun KxvFile.emitString(): String {
     return """
             package $packageName
@@ -14,6 +28,7 @@ fun KxvFile.emitString(): String {
 }
 
 fun KxvClass.emitString(): String {
+    anyfy()
     val selfType = KxvType(simpleName, false, (0 until typeParameters.size).map { KxvTypeProjection.STAR })
     val selfTypeAny = KxvType(simpleName, false, (0 until typeParameters.size).map { KxvTypeProjection(KxvType("Any", true)) })
     val typeParametersRegexes by lazy {
@@ -61,7 +76,7 @@ fun KxvClass.emitString(): String {
     }
     val enumValuesText = enumValues?.joinToString(",", "listOf(", ")") { "$simpleName.$it" }
     return """
-            object ${simpleName.filter { it.isJavaIdentifierPart() }}Reflection: KxClass<${selfType.emitStringActual()}>{
+            object $reflectiveObjectName: KxClass<${selfType.emitStringActual()}>{
 
                 $valDeclarations
 
@@ -200,6 +215,14 @@ fun KxvFunction.emitString(): String {
                 annotations = $annotationText
             )
         """.trimIndent()
+}
+val KxvFunction.callCode: String get(){
+    val argString = arguments.indices.joinToString { "it[$it] as ${arguments[it].type.emitStringActual()}" }
+    return if (typeParameters.isEmpty()) {
+        "{ $name($argString) }"
+    } else {
+        "{ $name<${typeParameters.joinToString { it.minimum.emitStringActual() }}>($argString) }"
+    }
 }
 fun KxvAnnotation.emitString(): String {
     return """

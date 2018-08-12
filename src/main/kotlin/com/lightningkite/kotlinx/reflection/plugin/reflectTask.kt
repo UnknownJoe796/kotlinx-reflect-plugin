@@ -8,14 +8,14 @@ fun reflectTask(lookForSources: List<File>, output: File, setupFunctionQualified
     val files = ArrayList<KxvFile>()
     //Search for files based on the ExternalReflection annotation
     lookForSources.forEach {
-        it.walkTopDown().forEach {
+        it.walkTopDown().forEach cont@{
             try {
-                if (it.extension == "kt") {
-                    val file = it.kotlinNode().getFile(it.name)
-                    val filteredFile = file.copy(classes = file.classes.filter { it.annotations.any { it.name == "ExternalReflection" } })
-                    if (filteredFile.classes.isNotEmpty()) {
-                        files.add(filteredFile)
-                    }
+                if (it.extension != "kt") return@cont
+                if (!it.readText().contains("ExternalReflection")) return@cont
+                val file = it.kotlinNode().getFile(it.name)
+                val filteredFile = file.copy(classes = file.classes.filter { it.annotations.any { it.name == "ExternalReflection" } })
+                if (filteredFile.classes.isNotEmpty()) {
+                    files.add(filteredFile)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -37,12 +37,20 @@ fun reflectTask(lookForSources: List<File>, output: File, setupFunctionQualified
         }
     }
 
-    println("Writing master file...")
+    println("Writing master files...")
     try {
-        val masterFile = KxvSetupFunction(setupFunctionQualifiedName, files)
-        val out = output.resolve(setupFunctionQualifiedName.replace('.', File.separatorChar) + ".kt")
-        out.parentFile.mkdirs()
-        out.writeText(masterFile.write())
+        files
+                .flatMap { it.classes }
+                .groupBy { it.packageName }
+                .map { KxvDirectory(it.key + ".reflections", it.value) }
+                .forEach { kxvDirectory ->
+                    val out = output.resolve(kxvDirectory.qualifiedValName.replace('.', File.separatorChar) + ".kt")
+                    out.parentFile.mkdirs()
+                    out.bufferedWriter().use {
+                        val tabWriter = TabWriter(it)
+                        tabWriter.write(kxvDirectory)
+                    }
+                }
     } catch (e: Exception) {
         e.printStackTrace()
     }

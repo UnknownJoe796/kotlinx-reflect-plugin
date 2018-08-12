@@ -4,7 +4,7 @@ import com.lightningkite.kotlinx.reflection.ExternalReflection
 import java.util.*
 
 @ExternalReflection
-class TestClass<T>(
+class TestClass<T : Any>(
         var name: String,
         var description: String = "",
         var nestMaybe: TestClass<*>? = null,
