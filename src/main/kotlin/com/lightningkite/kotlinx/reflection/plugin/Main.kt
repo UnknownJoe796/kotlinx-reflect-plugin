@@ -4,7 +4,7 @@ import java.io.File
 
 
 fun main(vararg args: String) {
-    val basePath = "/Users/josephivie/StudioProjects/kotlinx-reflect-plugin"
+    val basePath = "C:\\Users\\josep\\Projects\\kotlinx-reflect-plugin"
     val lookForSources = listOf(File("$basePath/testData"))
     val output = File("$basePath/build/testOutput")
     val qualifiedSetupFunctionName = "com.lightningkite.kotlinx.reflection.setupGenerated"

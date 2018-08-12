@@ -1,14 +1,11 @@
 package com.lightningkite.kotlinx.reflection.plugin
 
-import com.lightningkite.kotlinx.reflection.KxVariance
-
 fun Node.getFile(fileName: String): KxvFile {
-    val packageName = this["packageHeader"]?.get("identifier")
-            ?.children?.filter { it.type == "simpleIdentifier" }
-            ?.joinToString(".") { it.content!! } ?: ""
+    val packageName = this["packageHeader"]?.get("identifier")?.toStringIdentifier() ?: ""
     val classes = this.children
             .filter { it.type == "topLevelObject" }
-            .mapNotNull { it["classDeclaration"]?.toKxClass(packageName) }
+            .mapNotNull { it["classDeclaration"]?.toKxClasses(packageName) }
+            .flatMap { it }
     val generalImports = this["importList"]?.children?.mapNotNull {
         if (it.terminals.contains("*")) {
             it["identifier"]!!.children.joinToString(".") { it.content!! }
@@ -28,8 +25,14 @@ fun Node.getFile(fileName: String): KxvFile {
     )
 }
 
-fun Node.toKxClass(packageName: String): KxvClass {
-    val simpleName = this["simpleIdentifier"]!!.content!!
+fun Node.toStringIdentifier() = children.filter { it.type == "simpleIdentifier" }
+        .joinToString(".") { it.content!! }
+
+fun Node.toKxClasses(packageName: String, owner: KxvClass? = null): List<KxvClass> {
+    val directName = this["simpleIdentifier"]!!.content!!
+    val simpleName = owner?.let{
+        it.simpleName + "." + directName
+    } ?: directName
     val constructorVarList = this["primaryConstructor"]
             ?.get("classParameters")
             ?.children?.filter { it.type == "classParameter" }
@@ -43,9 +46,12 @@ fun Node.toKxClass(packageName: String): KxvClass {
             ?.mapNotNull { it["simpleIdentifier"]?.content }
             ?: listOf()
     val implementsList = get("delegationSpecifiers")?.children?.mapNotNull {
-        it.children.firstOrNull()?.toKxType()
+        it.get("delegationSpecifier")?.let{
+            it.get("constructorInvocation")?.get("userType")?.toKxType() ?:
+                    it.get("userType")?.toKxType()
+        }
     } ?: listOf()
-    return KxvClass(
+    val currentClass = KxvClass(
             simpleName = simpleName,
             qualifiedName = "$packageName.$simpleName",
             implements = implementsList,
@@ -53,21 +59,37 @@ fun Node.toKxClass(packageName: String): KxvClass {
             variables = (constructorVarList + normalVarList).associate { it.name to it },
             functions = listOf(),
             constructors = listOfNotNull(this["primaryConstructor"]?.toKxConstructor(simpleName, typeParams)),
-            annotations = get("modifierList")?.get("annotations")?.children?.map { it.toKxAnnotation() }
-                    ?: listOf(),
-            isInterface = this.terminals.contains("interface"),
-            isAbstract = this["modifierList"]?.children?.any { it.content == "abstract" } ?: false,
-            isOpen = this["modifierList"]?.children?.any { it.content == "open" } ?: false,
+            annotations = kxAnnotationsFromModifierList("class"),
+            modifiers = (this["modifierList"]?.children?.filter { it.type == "modifier" }?.mapNotNull { KxClassModifierMap[it.content] }
+                    ?: listOf()) + (
+                    if (this.terminals.contains("interface"))
+                        listOf(KxClassModifier.Interface)
+                    else
+                        listOf()
+                    ),
             enumValues = this["enumClassBody"]?.get("enumEntries")?.children?.mapNotNull { it["simpleIdentifier"]?.content }
     )
+    val subclasses:List<KxvClass> = this["classBody"]?.children
+            ?.filter { it.type == "classMemberDeclaration" }
+            ?.mapNotNull { it["classDeclaration"]?.toKxClasses(packageName, currentClass) }
+            ?.flatMap { it }
+            ?: listOf()
+
+    return subclasses + currentClass
+}
+
+fun Node.kxAnnotationsFromModifierList(targeting: String): List<KxvAnnotation> {
+    return get("modifierList")?.get("annotations")?.children?.map { it.toKxAnnotation() }?.filter { it.useSiteTarget == null || it.useSiteTarget == targeting }
+            ?: listOf()
 }
 
 fun Node.toKxAnnotation(): KxvAnnotation {
     return KxvAnnotation(
-            name = terminals[0].drop(1),
+            name = this["unescapedAnnotation"]?.get("identifier")?.toStringIdentifier() ?: terminals[0].drop(1),
             arguments = this["valueArguments"]?.children?.mapNotNull {
                 it["valueArgument"]?.get("expression")?.content
-            } ?: listOf()
+            } ?: listOf(),
+            useSiteTarget = this["annotationUseSiteTarget"]?.terminals?.firstOrNull()
     )
 }
 
@@ -79,10 +101,9 @@ fun Node.toKxType(annotations: List<KxvAnnotation> = listOf()): KxvType {
         "type", "typeProjection", "typeReference" -> this.children.firstOrNull()?.toKxType()
                 ?: anyNullableType
         "userType" -> {
-            KxvType(
-                    base = children.joinToString(".") {
-                        it["simpleIdentifier"]?.content ?: ""
-                    },
+            if (children.count { it.type == "simpleUserType" } == 1) get("simpleUserType")!!.toKxType()
+            else KxvType(
+                    base = toStringIdentifier(),
                     typeParameters = children.lastOrNull()
                             ?.get("typeArguments")
                             ?.children
@@ -92,7 +113,7 @@ fun Node.toKxType(annotations: List<KxvAnnotation> = listOf()): KxvType {
             )
         }
         "simpleUserType" -> KxvType(
-                base = this["simpleIdentifier"]!!.content!!,
+                base = toStringIdentifier(),
                 nullable = false,
                 typeParameters = this["typeArguments"]?.children?.map { it.toKxTypeProjection() }
                         ?: listOf(),
@@ -114,7 +135,7 @@ fun Node.toKxTypeProjection(annotations: List<KxvAnnotation> = listOf()): KxvTyp
 
 fun Node.toKxConstructor(forName: String, typeParams: List<String>): KxvFunction {
     val args = this["classParameters"]!!.children.map { it.toKxConstructorParam() }
-    val argString = args.indices.joinToString { "it[$it] as ${args[it].type.writeActual()}" }
+    val argString = args.indices.joinToString { "it[$it] as ${args[it].type.emitStringActual()}" }
     val callCode = if (typeParams.isEmpty()) {
         "{ $forName($argString) }"
     } else {
@@ -141,7 +162,7 @@ fun Node.toKxConstructorVariable(): KxvVariable? {
     return KxvVariable(
             name = this["simpleIdentifier"]!!.content!!,
             type = this["type"]!!.toKxType(),
-            annotations = listOf(),
+            annotations = kxAnnotationsFromModifierList("property"),
             artificial = false,
             mutable = terminals.contains("var")
     )
@@ -155,6 +176,6 @@ fun Node.toKxVariable(): KxvVariable {
                     ?: KxvType("Any", true, listOf(), listOf()),
             mutable = this.terminals.contains("var"),
             artificial = this["getter"] != null,
-            annotations = listOf()
+            annotations = kxAnnotationsFromModifierList("property")
     )
 }

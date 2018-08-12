@@ -1,8 +1,8 @@
 package com.lightningkite.kotlinx.reflection.plugin
 
-import com.intellij.kotlin.parse.KotlinLexer
-import com.intellij.kotlin.parse.KotlinParser
-import com.intellij.kotlin.parse.KotlinParserBaseListener
+import org.jetbrains.kotlin.KotlinLexer
+import org.jetbrains.kotlin.KotlinParser
+import org.jetbrains.kotlin.KotlinParserBaseListener
 import org.antlr.v4.runtime.ANTLRFileStream
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.ParserRuleContext

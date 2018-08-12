@@ -28,7 +28,10 @@ fun reflectTask(lookForSources: List<File>, output: File, setupFunctionQualified
         try {
             val out = output.resolve(file.packageName.replace('.', File.separatorChar) + "/" + file.fileName)
             out.parentFile.mkdirs()
-            out.writeText(file.write())
+            out.bufferedWriter().use {
+                val tabWriter = TabWriter(it)
+                tabWriter.write(file)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
